@@ -1,0 +1,5 @@
+A simple OTA test suite.
+Upload jad and jar files from the pc browser(FF/chrome/safari/Opera)
+Download jad file from mobile browser. Test auto install the app described in the jad file.
+
+Default config in config.js
