@@ -8,9 +8,9 @@ config:
 
 depends:
 node>=0.2.3
-express@1.0.0rc4
-formidable@0.9.9
-nun@0.1.13
+express v1.0.0rc4
+formidable v0.9.9
+nun v0.1.13
 
 url interface:
 upload file: http://localhost:8000/
