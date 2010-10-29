@@ -1,0 +1,1 @@
+killall -w ota | node /home/ota/index.js | tee -a ota.log &

@@ -1,0 +1,114 @@
+body {
+    width: 960px;
+    margin: 0 auto;
+    padding: 0;
+    font-size: 9pt;
+}
+
+div {
+    border: 0 solid #333;
+    margin: 1px 0;
+}
+
+input {
+/*border: 1px solid #333;*/
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+#menu div {
+    float: left;
+}
+#menu {height:30px;}
+
+div#userInfo, div#login {
+    float: right;
+    margin: 0 2em;
+    padding: 0 1em;
+    display: inline-block;
+}
+
+#mobiles {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: inline-block;
+    clear: both;
+}
+
+.mobile, #mobiles li {
+    margin: 5px;
+    float: left;
+    border: 1px solid #556b2f;
+    width: 110px;
+    padding: 2px 5px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+#mobiles li label {
+    width: 100%;
+    display: block;
+}
+
+#mobilesSwitch {
+    cursor: pointer;
+}
+
+.selected {
+    font-weight: 800;
+    background-color: #FFCC00;
+}
+
+fieldset {
+    border: 1px solid #556b2f;
+    clear: both;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.mobile {
+    display: inline-block;
+    float: none;
+    clear: left;
+    width: 50px;
+}
+
+.mobilejar {
+    border: none;
+    width: auto;
+}
+
+.list span, .title span {
+    width: 200px;
+    height: 28px;
+    display: inline-block;
+    margin: 0 1px 0 0;
+    padding: 1px 5px;
+    line-height: 28px;
+}
+
+.title span {
+/*height: 20px;*/
+    background-color: #6699FF;
+    /*color: #404040;*/
+    letter-spacing: 0.8em;
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: 800; /*line-height: 20px;*/
+}
+
+.list1 span {
+    background-color: #BFBFBF;
+}
+
+.list0 span {
+    background-color: #EFEFEF;
+}
+
+#list {
+    display: none;
+}

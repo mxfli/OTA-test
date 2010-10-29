@@ -1,0 +1,19 @@
+<a href="/wap">返回列表</a>
+<p>请选择机型下载：</p>
+{{#mobiles}}
+<div>机型：<strong>{{mobileType}}</strong><br/>
+    <a href="/wap/download/{{.oid}}/{{mobileType}}/{{JAD}}">JAD下载</a>    <a href="/wap/download/{{.oid}}/{{mobileType}}/{{JAR}}">JAR下载</a>
+</div>
+{{/mobiles}}
+
+<br/>
+{{#page}}
+<p>当前页：{{pageNum}}<br/>
+    跳转到：{{#pages}} {{&link}} {{/pages}}
+</p>
+{{/page}}
+{{^page}}
+<p>只有1页</p>
+{{/page}}
+
+
