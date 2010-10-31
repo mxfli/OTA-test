@@ -21,7 +21,7 @@ var ota = module.exports = function()
 {
     var uploads,lastId = 1;
 
-    //从/data.json中加载数据，并初始化
+    //Infinity OTA data form data file "./data.json"
     fs.readFile(__dirname + "/data.json", function(err, data)
     {
         if (err) throw err;
@@ -36,7 +36,7 @@ var ota = module.exports = function()
 
     var exports = {};
 
-    //删除业务
+    //delete upload ota files
     exports.del = function(id, callback)
     {
         console.log("del called.");
@@ -62,7 +62,9 @@ var ota = module.exports = function()
         });
     };
 
-    //上传业务  todo 实现不刷新页面上传
+    //Upload ota files
+    // TODO(mxfli) implement xhr upload in client and server side
+    //TODO(mxfli) do'ont save the absolute path in data.json
     exports.upload = function(req, res, next)
     {
         console.log("upload called.");
@@ -84,7 +86,7 @@ var ota = module.exports = function()
 
                 var mobiles = {};
 
-                //mkdir创建本次上传的目录
+                //make dir for the upload files
                 path.exists(otaPath,
                            function(exists)
                            {
@@ -145,7 +147,7 @@ var ota = module.exports = function()
     {
         console.log("wap called.");
 
-        var ctx = {title:"OTA-文件列表"};
+        var ctx = {title:"OTA-文件列表"}; //TODO(mxfli) load title in properties file, default is en.
         ctx.date = otaUtil.patternTime("MM月DD日 HH:mm", new Date());
 
         var result = [];

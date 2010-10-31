@@ -12,7 +12,7 @@
  * OTA的安装
  *      1. 需要NodeJS v 0.2.3
  *      2. 安装 NPM NodeJS 包管理器
- *      3. 用NPM安装依赖的包：express(web服务器实现), formidable(Node处理文件上传的包)
+ *      3. 用NPM安装依赖的包：express(web服务器实现), formidable(Node处理文件上传的包) ,nun模板处理
  *      4. 上传app目录到服务器指定目录
  *
  * OTA服务启动：

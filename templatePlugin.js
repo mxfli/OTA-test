@@ -10,7 +10,7 @@
  *      1. bind template engine by type: General Template for HTML and txt, Less (sass) for CSS
  *      2. Impl engine could be replaced by others, and user can Specified template engine.
  *      3. render and return the result by callback method, do not output the result in template engine.
- *      4. todo nTPL,jade,less
+ *
  */
 
 
@@ -36,7 +36,6 @@ var templatePlugin = module.exports = function ()
                 var html = "";
                 data.on("data", function(fragment) {html += fragment})
                         .on("end", function() { callback(err, html); });
-                //todo add stream out put to the web layer
             }
         };
     }
