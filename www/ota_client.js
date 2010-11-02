@@ -9,6 +9,7 @@ function initOta()
 {
 
     //Ajax login
+    //TODO(@mxfli) login when press enter
     function login()
     {
         var name = $("input[name=name]").val(),

@@ -45,7 +45,7 @@ var ota = module.exports = function()
         {
             console.log(sys.inspect(upload));
             if (upload.oid === parseInt(id, 10)) {
-                otaUtil.rmdir(upload["path"], function(err)
+                otaUtil.rmdir(__dirname + upload["path"], function(err)
                 {
                     if (err) {
                         callback("");
@@ -64,7 +64,6 @@ var ota = module.exports = function()
 
     //Upload ota files
     // TODO(mxfli) implement xhr upload in client and server side
-    //TODO(mxfli) do'ont save the absolute path in data.json
     exports.upload = function(req, res, next)
     {
         console.log("upload called.");
@@ -115,7 +114,7 @@ var ota = module.exports = function()
 
                                Object.keys(mobiles).forEach(function(key) { result.push(mobiles[key]); });
 
-                               uploads.unshift({oid:oid,title:fields["title"],datatime:Date.now(),path:otaPath,mobiles:result});
+                               uploads.unshift({oid:oid,title:fields["title"],datatime:Date.now(),path:otaPath.replace(__dirname, ""),mobiles:result});
 
 
                                //res.writeHead(200, {'content-type': 'text/html'});
@@ -147,7 +146,7 @@ var ota = module.exports = function()
     {
         console.log("wap called.");
 
-        var ctx = {title:"OTA-文件列表"}; //TODO(mxfli) load title in properties file, default is en.
+        var ctx = {title:"File-list"};
         ctx.date = otaUtil.patternTime("MM月DD日 HH:mm", new Date());
 
         var result = [];
@@ -174,7 +173,7 @@ var ota = module.exports = function()
         for (var i = 0; upload = uploads[i]; i++) {
             if (upload.oid === oid) {
 
-                ctx.title = "OTA-" + upload["title"];
+                ctx.title = "Name:" + upload["title"];
                 var subCtx = {oid:upload.oid,mobiles:upload.mobiles};
 
                 pageCount = Math.ceil(upload.mobiles.length / pageSize);
@@ -216,7 +215,7 @@ var ota = module.exports = function()
 
 
     //JAD & JAR files download
-    exports.download = function(res, oid, mobileType, fileType)
+    exports.download = function(res, oid, mobileType, fileType, cb)
     {
         var filename = "";
         uploads.some(function(upload)
@@ -225,13 +224,13 @@ var ota = module.exports = function()
                 upload.mobiles.some(function(mobile)
                 {
                     if (mobileType === mobile.mobileType) {
-                        filename = upload["path"] + "/" + mobile[fileType],mobile[fileType];
+                        filename = __dirname + upload["path"] + "/" + mobile[fileType];
                         console.log("fileType", fileType);
                         console.log("download file", filename);
                         if (fileType === "JAD") {
                             fs.readFile(filename, function(err, jadContent)
                             {
-                                if (err)throw err;
+                                if (err)cb(err);
                                 res.writeHead(200, {"content-type": "text/vnd.sun.j2me.app-descriptor;charset=UTF-8"});
                                 res.end(jadContent);
                             });
