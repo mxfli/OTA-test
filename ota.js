@@ -17,7 +17,7 @@ var fs = require("fs"),
         otaUtil = require("./util"),
         templateEngine = require("./templatePlugin.js");
 
-var ota = module.exports = function()
+var ota = function()
 {
     var uploads,lastId = 1;
 
@@ -266,3 +266,5 @@ var ota = module.exports = function()
     return exports;
 
 }();
+
+module.exports = ota;

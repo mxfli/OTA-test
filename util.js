@@ -8,23 +8,23 @@
 var fs = require("fs") ,
         path = require("path");
 
-var util = module.exports = function()
+var util = function()
 {
     var exports = {};
 
-    function f(i, j)
-    {
-        if (i > 9 || i === 3 && i > 99) {
-            return i;
-        } else {
-            j = j || 2;
-            var n = j === 2 ? 100 : 1000;
-            return (i / n).toFixed(j).split(".")[1];
-        }
-    }
-
     exports.patternTime = function(pattern, date)
     {
+        function f(i, j)
+        {
+            if (i > 9 || i === 3 && i > 99) {
+                return i;
+            } else {
+                j = j || 2;
+                var n = j === 2 ? 100 : 1000;
+                return (i / n).toFixed(j).split(".")[1];
+            }
+        }
+
         //var star = Date.now();
         date = date || new Date;
         pattern = pattern || "YYYY-MM-DD HH:mm:ss:sss";
@@ -66,3 +66,5 @@ var util = module.exports = function()
     //console.log("\nInit utils lib: " + utils.patternTime() + "\n");
     return exports;
 }();
+
+module.exports = util;
