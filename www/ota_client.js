@@ -38,11 +38,15 @@ function initOta()
             $("#login").hide();
             $("#userInfo").html("用户：" + data).show();
         }
+        loadList();
     }
 
     //bind click for login button
     $("#login :button").click(login);
-
+    $("input[name=password]").keypress(function (event)
+    {
+        if (event.keyCode === 13) {login.apply()}
+    });
     //check login state when page is ready
     $.get("/login", userInfo);
 
@@ -61,48 +65,45 @@ function initOta()
     //load uploaded oat items form the server by ajax request.
     function loadList()
     {
-        $.getJSON("/list",
-                 function(data)
-                 {
-                     $("#list").show();
-                     $("#up").hide();
-                     $("li.list").remove();
-                     data.forEach(
-                                 function(mobile, index)
-                                 {
-                                     $("<li></li>")
-                                             .addClass("list")
-                                             .addClass("list" + (index % 2))
-                                             .append("<span>" + mobile.title + "</span>")
-                                             .append("<span>" + patternedDate("YYYY-MM-DD HH:mm:ss", new Date(mobile.datatime)) + "</span>")
-                                             .append(
-                                             $("<span></span>")
-                                                     .css("textAlign", "center")
-                                                     .append($("<input type='button'>")
-                                                     .attr("value", "删除")
-                                                     .click(
-                                                           function()
-                                                           {
-                                                               if (confirm("确认删除 \"" + mobile.title + "\"？")) {
-                                                                   $.get("/delete/" + mobile.oid, {}, function(data)
-                                                                   {
-                                                                       if (data === "OK") {
-                                                                           loadList();
-                                                                       }
-                                                                   });
-                                                               }
-                                                           })))
-                                             .appendTo("#list ul");
-                                 });
-                 });
+        if (window.location.href.indexOf("#list") !== -1)
+            $.getJSON("/list",
+                     function(data)
+                     {
+                         $("#list").show();
+                         $("#up").hide();
+                         $("li.list").remove();
+                         data.forEach(
+                                     function(mobile, index)
+                                     {
+                                         $("<li></li>")
+                                                 .addClass("list")
+                                                 .addClass("list" + (index % 2))
+                                                 .append("<span>" + mobile.title + "</span>")
+                                                 .append("<span>" + patternedDate("YYYY-MM-DD HH:mm:ss", new Date(mobile.datatime)) + "</span>")
+                                                 .append(
+                                                 $("<span></span>")
+                                                         .css("textAlign", "center")
+                                                         .append($("<input type='button'>")
+                                                         .attr("value", "删除")
+                                                         .click(
+                                                               function()
+                                                               {
+                                                                   if (confirm("确认删除 \"" + mobile.title + "\"？")) {
+                                                                       $.get("/delete/" + mobile.oid, {}, function(data)
+                                                                       {
+                                                                           if (data === "OK") {
+                                                                               loadList();
+                                                                           }
+                                                                       });
+                                                                   }
+                                                               })))
+                                                 .appendTo("#list ul");
+                                     });
+                     });
     }
 
 
     //如果地址中有#list锚链接 加载手机列表数据，一次加载完成部分也
-    if (window.location.href.indexOf("#list") !== -1) {
-        loadList();
-    }
-
 
     //隐藏/显示 手机型号
     $("#mobilesSwitch").click(
