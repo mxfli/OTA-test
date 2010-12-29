@@ -42,24 +42,24 @@ var ota = function()
         console.log("del called.");
 
         uploads.some(function(upload, index)
-        {
-            console.log(sys.inspect(upload));
-            if (upload.oid === parseInt(id, 10)) {
-                otaUtil.rmdir(__dirname + upload["path"], function(err)
-                {
-                    if (err) {
-                        callback("");
-                    } else {
-                        console.log("del:", upload["title"], "dir:", upload["path"]);
-                        uploads.splice(index, 1);
-                        fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), "utf8");
-                        callback("OK");
-                    }
-                });
+                     {
+                         console.log(sys.inspect(upload));
+                         if (upload.oid === parseInt(id, 10)) {
+                             otaUtil.rmdir(__dirname + upload["path"], function(err)
+                             {
+                                 if (err) {
+                                     callback("");
+                                 } else {
+                                     console.log("del:", upload["title"], "dir:", upload["path"]);
+                                     uploads.splice(index, 1);
+                                     fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), "utf8");
+                                     callback("OK");
+                                 }
+                             });
 
-                return true;
-            }
-        });
+                             return true;
+                         }
+                     });
     };
 
     //Upload ota files
@@ -87,47 +87,46 @@ var ota = function()
 
                 //make dir for the upload files
                 path.exists(otaPath,
-                           function(exists)
-                           {
-                               if (!exists) {
-                                   fs.mkdirSync(otaPath, 777);
-                               }
+                            function(exists)
+                            {
+                                if (!exists) {
+                                    fs.mkdirSync(otaPath, 777);
+                                }
 
-                               var mobileType;
+                                var mobileType;
 
-                               Object.keys(files).forEach(
-                                                         function(key)
-                                                         {
-                                                             mobileType = key.split("_")[0];
-                                                             if (!mobiles.hasOwnProperty(mobileType)) {
-                                                                 mobiles[mobileType] = {mobileType:mobileType};
-                                                             }
-                                                             //mobiles[mobileType][key.split("_")[1]] = otaPath + "/" + files[key]["filename"];
-                                                             console.log("upload filename:", files[key]["filename"]);
-                                                             mobiles[mobileType][key.split("_")[1]] = files[key]["filename"];
-                                                             fs.renameSync(files[key]["path"], otaPath + "/" + files[key]["filename"]);
-                                                             //console.log("Old file", files[key]["path"], " save to file", otaPath + "/" + files[key]["filename"]);
-                                                         });
+                                Object.keys(files).forEach(function(key)
+                                                           {
+                                                               mobileType = key.split("_")[0];
+                                                               if (!mobiles.hasOwnProperty(mobileType)) {
+                                                                   mobiles[mobileType] = {mobileType:mobileType};
+                                                               }
+                                                               //mobiles[mobileType][key.split("_")[1]] = otaPath + "/" + files[key]["filename"];
+                                                               console.log("upload filename:", files[key]["filename"]);
+                                                               mobiles[mobileType][key.split("_")[1]] = files[key]["filename"];
+                                                               fs.renameSync(files[key]["path"], otaPath + "/" + files[key]["filename"]);
+                                                               //console.log("Old file", files[key]["path"], " save to file", otaPath + "/" + files[key]["filename"]);
+                                                           });
 
-                               //console.log("uploads struct :\n", sys.inspect(mobiles));
-                               var result = [];
+                                //console.log("uploads struct :\n", sys.inspect(mobiles));
+                                var result = [];
 
-                               Object.keys(mobiles).forEach(function(key) { result.push(mobiles[key]); });
+                                Object.keys(mobiles).forEach(function(key) { result.push(mobiles[key]); });
 
-                               uploads.unshift({oid:oid,title:fields["title"],datatime:Date.now(),path:otaPath.replace(__dirname, ""),mobiles:result});
+                                uploads.unshift({oid:oid,title:fields["title"],datatime:Date.now(),path:otaPath.replace(__dirname, ""),mobiles:result});
 
 
-                               //res.writeHead(200, {'content-type': 'text/html'});
-                               //res.end(sys.inspect(uploads[0]));
-                               //console.log(sys.inspect({lastId:lastId,uploads:uploads}));
+                                //res.writeHead(200, {'content-type': 'text/html'});
+                                //res.end(sys.inspect(uploads[0]));
+                                //console.log(sys.inspect({lastId:lastId,uploads:uploads}));
 
-                               fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), 'utf8', function(err)
-                               {
-                                   if (err)console.log("save data.json err", err);
-                               });
+                                fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), 'utf8', function(err)
+                                {
+                                    if (err)console.log("save data.json err", err);
+                                });
 
-                               res.redirect("/#list");
-                           }
+                                res.redirect("/#list");
+                            }
                         );
             }
         });
@@ -144,9 +143,9 @@ var ota = function()
     //wap 默认页面：列出最后上传的10项内容
     exports.wap = function(req, res, next)
     {
-        console.log("wap called.");
+        //console.log("wap called.");
 
-        var ctx = {title:"File-list"};
+        var ctx = {title:"File-list", version:config.version};
         ctx.date = otaUtil.patternTime("MM月DD日 HH:mm", new Date());
 
         var result = [];
@@ -219,30 +218,51 @@ var ota = function()
     {
         var filename = "";
         uploads.some(function(upload)
-        {
-            if (upload.oid === oid) {
-                upload.mobiles.some(function(mobile)
-                {
-                    if (mobileType === mobile.mobileType) {
-                        filename = __dirname + upload["path"] + "/" + mobile[fileType];
-                        console.log("fileType", fileType);
-                        console.log("download file", filename);
-                        if (fileType === "JAD") {
-                            fs.readFile(filename, function(err, jadContent)
-                            {
-                                if (err)cb(err);
-                                res.writeHead(200, {"content-type": "text/vnd.sun.j2me.app-descriptor;charset=UTF-8"});
-                                res.end(jadContent);
-                            });
-                        } else {
-                            res.download(filename, mobile[fileType]);
-                        }
-                        return true;
-                    }
-                });
-                return true;
-            }
-        });
+                     {
+                         if (upload.oid === oid) {
+                             upload.mobiles.some(function(mobile)
+                                                 {
+                                                     if (mobileType === mobile.mobileType) {
+                                                         filename = __dirname + upload["path"] + "/" + mobile[fileType];
+
+                                                         //console.log("download", fileType, " file", filename.replace(__dirname, ""));
+
+                                                         path.exists(filename, function(exists)
+                                                         {
+                                                             if (exists) {
+                                                                 if (fileType === "JAD") {
+                                                                     fs.readFile(filename, function(err, jadContent)
+                                                                     {
+                                                                         if (err)cb(err);
+                                                                         res.writeHead(200, {"content-type": "text/vnd.sun.j2me.app-descriptor;charset=UTF-8"});
+                                                                         res.end(jadContent);
+                                                                     });
+                                                                 } else {
+                                                                     res.download(filename, mobile[fileType]);
+                                                                 }
+                                                             } else {
+                                                                 templateEngine.render(
+                                                                         "/404.html"
+                                                                         , {otaTitle:upload.title
+                                                                     ,mobileType:mobile.mobileType
+                                                                     ,filename:mobile[fileType]
+                                                                     ,referrer:res.referrer
+                                                                     ,version:config.version
+                                                                     ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())}
+                                                                         , function(err, html)
+                                                                 {
+                                                                     res.writeHead(404, {"content-type": "text/vnd.wap.wml;charset=UTF-8"});
+                                                                     res.end(html);
+                                                                 });
+
+                                                             }
+                                                             return true;
+                                                         });
+                                                     }
+                                                 });
+                             return true;
+                         }
+                     });
 
     };
 

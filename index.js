@@ -110,7 +110,9 @@ otaApp.get("/wap/download/:oid/:mobile/*", function(req, res, next)
     var oid = req.param("oid"),mobile = req.param("mobile"),extName = path.extname(url.parse(req.url)["pathname"]);
     if (oid) {
         oid = parseInt(oid, 10);
-        //TODO(mxfli)  If err return to the reefer page and show the err message on the top.
+        //todo referrer does not work, need more tests.
+        res.referrer = req.headers.referrer || req.headers.referer || "/wap/" + oid;
+        //console.log(JSON.stringify(req.headers));
         ota.download(res, oid, mobile, extName.toUpperCase().replace(".", ""), function(err) {next(err)});
     } else {
         next();
