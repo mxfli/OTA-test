@@ -1,5 +1,5 @@
 /**
- * copied from WapGame/gameserver/templateEngine.js
+ * copy from WapGame/gameserver/templateEngine.js
  * FileName: templatePlugin.js
  * Author: @mxfli
  * CreateTime: 2010-08-04 14:11

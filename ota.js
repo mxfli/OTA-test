@@ -15,7 +15,8 @@ var fs = require("fs"),
         config = require("./config"),
         formidable = require("formidable"),
         otaUtil = require("./util"),
-        templateEngine = require("./templatePlugin.js");
+        templateEngine = require("./templatePlugin.js"),
+        WML_MIME_TYPE = "text/vnd.wap.wml;charset=UTF-8";
 
 var ota = function()
 {
@@ -34,36 +35,67 @@ var ota = function()
         console.log("OTA data loaded.")
     });
 
+    //execute when Not matching any record in data.json
+    function dbError(res)
+    {
+        templateEngine.render(
+                "/500.html",
+                {version:config.version ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())},
+                function(err, html)
+                {
+                    res.writeHead(500, {"content-type": WML_MIME_TYPE});
+                    res.end(html);
+                });
+    }
+
+    /**
+     * Find obj with custom condition tester
+     * @param tester  custom tester
+     * @param callback do callback when match or not find with the tester.
+     */
+    Array.prototype.findObj = function(tester, callback, errHandler)
+    {
+        var found = this.some(function(e, index)
+                              {
+                                  if (tester(e)) {
+                                      callback(e, index);
+                                      return true;
+                                  }
+                              });
+        if (!found) {errHandler();}
+    };
+
     var exports = {};
 
     //delete upload ota files
     exports.del = function(id, callback)
     {
         console.log("del called.");
-
-        uploads.some(function(upload, index)
-                     {
-                         console.log(sys.inspect(upload));
-                         if (upload.oid === parseInt(id, 10)) {
-                             otaUtil.rmdir(__dirname + upload["path"], function(err)
-                             {
-                                 if (err) {
-                                     callback("");
-                                 } else {
-                                     console.log("del:", upload["title"], "dir:", upload["path"]);
-                                     uploads.splice(index, 1);
-                                     fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), "utf8");
-                                     callback("OK");
-                                 }
-                             });
-
-                             return true;
-                         }
-                     });
+        uploads.findObj(
+                       function(upload) {return upload.oid === parseInt(id, 10)},
+                       function(upload, index)
+                       {
+                           otaUtil.rmdir(__dirname + upload["path"],
+                                         function(err)
+                                         {
+                                             if (err) {
+                                                 callback("");
+                                             } else {
+                                                 console.log("del:", upload["title"], "dir:", upload["path"]);
+                                                 uploads.splice(index, 1);
+                                                 fs.writeFile(__dirname + "/data.json",
+                                                              JSON.stringify({lastId:lastId,uploads:uploads}),
+                                                              "utf8");
+                                                 callback("OK");
+                                             }
+                                         });
+                       },
+                       callback.bind(null, ""));
     };
 
     //Upload ota files
-    // TODO(mxfli) implement xhr upload in client and server side
+    //TODO(mxfli) implement xhr upload in client and server side
+    //TODO(mxfli) Refactor all method to simple and short functions: write json file read json file.
     exports.upload = function(req, res, next)
     {
         console.log("upload called.");
@@ -77,7 +109,6 @@ var ota = function()
                 next(err);
             } else {
                 //init ota fields
-
                 oid = lastId;
                 lastId = lastId + 1;
                 datetime = Date.now(); //use for data
@@ -157,7 +188,7 @@ var ota = function()
         templateEngine.render("/layout.html", ctx, function(err, html)
         {
             if (err) next(err);
-            res.writeHead(200, {"content-type": "text/vnd.wap.wml;charset=UTF-8"});
+            res.writeHead(200, {"content-type": WML_MIME_TYPE});
             res.end(html);
         });
 
@@ -206,7 +237,7 @@ var ota = function()
         templateEngine.render("/layout.html", ctx, function(err, html)
         {
             if (err) next(err);
-            res.writeHead(200, {"content-type": "text/vnd.wap.wml;charset=UTF-8"});
+            res.writeHead(200, {"content-type": WML_MIME_TYPE});
             res.end(html);
         });
 
@@ -216,54 +247,60 @@ var ota = function()
     //JAD & JAR files download
     exports.download = function(res, oid, mobileType, fileType, cb)
     {
-        var filename = "";
-        uploads.some(function(upload)
-                     {
-                         if (upload.oid === oid) {
-                             upload.mobiles.some(function(mobile)
-                                                 {
-                                                     if (mobileType === mobile.mobileType) {
-                                                         filename = __dirname + upload["path"] + "/" + mobile[fileType];
+        //render 404 download page when data.json is right and file not exists.
+        function notFound(upload, mobile)
+        {
+            templateEngine.render("/404.html",
+                                  {otaTitle:upload.title
+                                      ,mobileType:mobile.mobileType
+                                      ,filename:mobile[fileType]
+                                      ,referrer:res.referrer
+                                      ,version:config.version
+                                      ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())},
+                                  function(err, html)
+                                  {
+                                      res.writeHead(404, {"content-type": WML_MIME_TYPE});
+                                      res.end(html);
+                                  });
+        }
 
-                                                         //console.log("download", fileType, " file", filename.replace(__dirname, ""));
 
-                                                         path.exists(filename, function(exists)
-                                                         {
-                                                             if (exists) {
-                                                                 if (fileType === "JAD") {
-                                                                     fs.readFile(filename, function(err, jadContent)
-                                                                     {
-                                                                         if (err)cb(err);
-                                                                         res.writeHead(200, {"content-type": "text/vnd.sun.j2me.app-descriptor;charset=UTF-8"});
-                                                                         res.end(jadContent);
-                                                                     });
-                                                                 } else {
-                                                                     res.download(filename, mobile[fileType]);
-                                                                 }
-                                                             } else {
-                                                                 templateEngine.render(
-                                                                         "/404.html"
-                                                                         , {otaTitle:upload.title
-                                                                     ,mobileType:mobile.mobileType
-                                                                     ,filename:mobile[fileType]
-                                                                     ,referrer:res.referrer
-                                                                     ,version:config.version
-                                                                     ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())}
-                                                                         , function(err, html)
-                                                                 {
-                                                                     res.writeHead(404, {"content-type": "text/vnd.wap.wml;charset=UTF-8"});
-                                                                     res.end(html);
-                                                                 });
+        //Download jad file or jar file.
+        function downloadFile(uploadOTA, mobile)
+        {
+            var JAD_MIME_TYPE = "text/vnd.sun.j2me.app-descriptor;charset=UTF-8";
+            var filename = __dirname + uploadOTA["path"] + "/" + mobile[fileType];
+            //console.log("download", fileType, " file", filename.replace(__dirname, ""));
 
-                                                             }
-                                                             return true;
-                                                         });
-                                                     }
-                                                 });
-                             return true;
-                         }
-                     });
+            path.exists(filename, function(exists)
+            {
+                if (exists) {
+                    if (fileType === "JAD") {
+                        fs.readFile(filename,
+                                    function(err, jadContent)
+                                    {
+                                        if (err)cb(err);
+                                        res.writeHead(200, {"content-type": JAD_MIME_TYPE});
+                                        res.end(jadContent);
+                                    });
+                    } else {
+                        res.download(filename, mobile[fileType]);
+                    }
+                } else {
+                    notFound(uploadOTA, mobile);
+                }
+            });
+        }
 
+
+        uploads.findObj(function(upload) {return upload.oid === oid },
+                        function(uploadedOTA)
+                        {
+                            uploadedOTA.mobiles.findObj(function(mobile) {return mobile.mobileType === mobileType},
+                                                        downloadFile.bind(null, uploadedOTA),
+                                                        dbError.bind(null, res));
+                        },
+                        dbError.bind(null, res));
     };
 
 
