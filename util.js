@@ -8,14 +8,11 @@
 var fs = require("fs") ,
         path = require("path");
 
-var util = function()
-{
+var util = function() {
     var exports = {};
 
-    exports.patternTime = function(pattern, date)
-    {
-        function f(i, j)
-        {
+    exports.patternTime = function(pattern, date) {
+        function f(i, j) {
             if (i > 9 || i === 3 && i > 99) {
                 return i;
             } else {
@@ -40,19 +37,15 @@ var util = function()
         return pattern;
     };
 
-    exports.rmdir = function(dir, callback)
-    {
-        path.exists(dir, function(exits)
-        {
+    exports.rmdir = function(dir, callback) {
+        path.exists(dir, function(exits) {
             if (exits) {
-                fs.readdirSync(dir).forEach(function(file)
-                {
+                fs.readdirSync(dir).forEach(function(file) {
                     file = path.join(dir, file);
                     console.log("unlink file:", file);
                     fs.unlinkSync(file);
                 });
-                fs.rmdir(dir, function(err)
-                {
+                fs.rmdir(dir, function(err) {
                     callback(err);
                 });
             } else {

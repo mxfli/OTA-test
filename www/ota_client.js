@@ -5,18 +5,15 @@
  * Time: 上午8:53
  */
 
-function initOta()
-{
+function initOta() {
 
     //Ajax login
-    function login()
-    {
+    function login() {
         var name = $("input[name=name]").val(),
                 password = $("input[name=password]").val(),
                 data = {name:name,password:password};
 
-        $.post("/login", data, function(responseData)
-        {
+        $.post("/login", data, function(responseData) {
             if (responseData === "0") {
                 alert("用户名或密码错误！");
             }
@@ -26,8 +23,7 @@ function initOta()
 
 
     //Check current session: if user has login return user's Info.
-    function userInfo(data)
-    {
+    function userInfo(data) {
         if (data === "0") {
             $("#userInfo").empty().hide();
             $("#login").show();
@@ -42,8 +38,7 @@ function initOta()
 
     //bind click for login button
     $("#login :button").click(login);
-    $("input[name=password]").keypress(function (event)
-    {
+    $("input[name=password]").keypress(function (event) {
         if (event.keyCode === 13) {login.apply()}
     });
     //check login state when page is ready
@@ -52,53 +47,46 @@ function initOta()
 
     //get mobiles list form the server by ajax
     $.getJSON("/mobiles.json",
-             function (d)
-             {
-                 $("#mobiles").html(d.map(
-                                         function (v)
-                                         {
-                                             return  "<li><label><input type='checkbox' name=\'mobiletype\' value=\'" + v + "\' > " + v + "</label></li>";
-                                         }).join(""));
-             });
+              function (d) {
+                  $("#mobiles").html(d.map(
+                                          function (v) {
+                                              return  "<li><label><input type='checkbox' name=\'mobiletype\' value=\'" + v + "\' > " + v + "</label></li>";
+                                          }).join(""));
+              });
 
     //load uploaded oat items form the server by ajax request.
-    function loadList()
-    {
+    function loadList() {
         if (window.location.href.indexOf("#list") !== -1)
             $.getJSON("/list",
-                     function(data)
-                     {
-                         $("#list").show();
-                         $("#up").hide();
-                         $("li.list").remove();
-                         data.forEach(
-                                     function(mobile, index)
-                                     {
-                                         $("<li></li>")
-                                                 .addClass("list")
-                                                 .addClass("list" + (index % 2))
-                                                 .append("<span>" + mobile.title + "</span>")
-                                                 .append("<span>" + patternedDate("YYYY-MM-DD HH:mm:ss", new Date(mobile.datatime)) + "</span>")
-                                                 .append(
-                                                 $("<span></span>")
-                                                         .css("textAlign", "center")
-                                                         .append($("<input type='button'>")
-                                                         .attr("value", "删除")
-                                                         .click(
-                                                               function()
-                                                               {
-                                                                   if (confirm("确认删除 \"" + mobile.title + "\"？")) {
-                                                                       $.get("/delete/" + mobile.oid, {}, function(data)
-                                                                       {
-                                                                           if (data === "OK") {
-                                                                               loadList();
-                                                                           }
-                                                                       });
-                                                                   }
-                                                               })))
-                                                 .appendTo("#list ul");
-                                     });
-                     });
+                      function(data) {
+                          $("#list").show();
+                          $("#up").hide();
+                          $("li.list").remove();
+                          data.forEach(
+                                      function(mobile, index) {
+                                          $("<li></li>")
+                                                  .addClass("list")
+                                                  .addClass("list" + (index % 2))
+                                                  .append("<span>" + mobile.title + "</span>")
+                                                  .append("<span>" + patternedDate("YYYY-MM-DD HH:mm:ss", new Date(mobile.datatime)) + "</span>")
+                                                  .append(
+                                                  $("<span></span>")
+                                                          .css("textAlign", "center")
+                                                          .append($("<input type='button'>")
+                                                                          .attr("value", "删除")
+                                                                          .click(
+                                                                                function() {
+                                                                                    if (confirm("确认删除 \"" + mobile.title + "\"？")) {
+                                                                                        $.get("/delete/" + mobile.oid, {}, function(data) {
+                                                                                            if (data === "OK") {
+                                                                                                loadList();
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                })))
+                                                  .appendTo("#list ul");
+                                      });
+                      });
     }
 
 
@@ -106,8 +94,7 @@ function initOta()
 
     //隐藏/显示 手机型号
     $("#mobilesSwitch").click(
-                             function()
-                             {
+                             function() {
                                  var mobilesManage = $("#mobilesManage");
                                  if (mobilesManage.is(":visible")) {
                                      mobilesManage.hide(200);
@@ -118,8 +105,7 @@ function initOta()
 
 
     //全部选中手机的切换功能
-    $("#allSwitch").click(function ()
-    {
+    $("#allSwitch").click(function () {
         if ($(this).is(":checked")) {
             $(":checkbox[name=mobiletype]").attr("checked", "checked");
         } else {
@@ -129,20 +115,17 @@ function initOta()
     });
 
     //单独选中切换功能
-    $("#mobiles").click(function()
-    {
+    $("#mobiles").click(function() {
         checkedStyle();
     });
 
     //生成OTA上传表单
-    $(":button[name=click]").click(function()
-    {
+    $(":button[name=click]").click(function() {
 
         var checkedMobiles = $(":checked[name=mobiletype]");
         if (checkedMobiles.length > 0) {
             $("#mobileInputs").empty();
-            checkedMobiles.each(function()
-            {
+            checkedMobiles.each(function() {
                 $("<div>").css("height", "25px")
                         .append($("<span>" + this.value + "</span>").addClass("mobile"))
                         .append(('<span> <label>JAD <input name="' + this.value + '_JAD" type="file" accept="application/jad"></label></span>'))
@@ -158,8 +141,7 @@ function initOta()
     });
 
     //提交表单是的校验工作
-    $("form").submit(function()
-    {
+    $("form").submit(function() {
         //必须修改标题，标题不能为空
         var title = this.title.value;
         if (title === "" || title === "请输入标题") {
@@ -193,8 +175,7 @@ function initOta()
 
 
     //切换到上传表单
-    $("a[href=\"#upload\"]").click(function()
-    {
+    $("a[href=\"#upload\"]").click(function() {
         $("#list").hide();
         $("#up").show();
 
@@ -202,18 +183,15 @@ function initOta()
 }
 
 //手机类型中被选中的样式切换功能
-function checkedStyle()
-{
+function checkedStyle() {
     $(":checkbox[name=mobiletype]").parent().parent().removeClass("selected");
     $(":checked[name=mobiletype]").parent().parent().addClass("selected");
 }
 
 
 //格式化日期的函数
-function patternedDate(pattern, date)
-{
-    function f(i, j)
-    {
+function patternedDate(pattern, date) {
+    function f(i, j) {
         if (i > 9 || i === 3 && i > 99) {
             return i;
         } else {

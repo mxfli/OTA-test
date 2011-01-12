@@ -18,13 +18,11 @@ var fs = require("fs"),
         templateEngine = require("./templatePlugin.js"),
         WML_MIME_TYPE = "text/vnd.wap.wml;charset=UTF-8";
 
-var ota = function()
-{
+var ota = function() {
     var uploads,lastId = 1;
 
     //Infinity OTA data form data file "./data.json"
-    fs.readFile(__dirname + "/data.json", function(err, data)
-    {
+    fs.readFile(__dirname + "/data.json", function(err, data) {
         if (err) throw err;
         var script = JSON.parse(data.toString("utf8"));
 
@@ -36,13 +34,11 @@ var ota = function()
     });
 
     //execute when Not matching any record in data.json
-    function dbError(res)
-    {
+    function dbError(res) {
         templateEngine.render(
                 "/500.html",
                 {version:config.version ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())},
-                function(err, html)
-                {
+                function(err, html) {
                     res.writeHead(500, {"content-type": WML_MIME_TYPE});
                     res.end(html);
                 });
@@ -53,31 +49,28 @@ var ota = function()
      * @param tester  custom tester
      * @param callback do callback when match or not find with the tester.
      */
-    Array.prototype.findObj = function(tester, callback, errHandler)
-    {
-        var found = this.some(function(e, index)
-                              {
-                                  if (tester(e)) {
-                                      callback(e, index);
-                                      return true;
-                                  }
-                              });
+    Array.prototype.findObj = function(tester, callback, errHandler) {
+        var found = this.some(function(e, index) {
+            if (tester(e)) {
+                callback(e, index);
+                return true;
+            }
+        });
         if (!found) {errHandler();}
     };
 
     var exports = {};
 
     //delete upload ota files
-    exports.del = function(id, callback)
-    {
+    exports.del = function(id, callback) {
         console.log("del called.");
         uploads.findObj(
-                       function(upload) {return upload.oid === parseInt(id, 10)},
-                       function(upload, index)
-                       {
+                       function(upload) {
+                           return upload.oid === parseInt(id, 10)
+                       },
+                       function(upload, index) {
                            otaUtil.rmdir(__dirname + upload["path"],
-                                         function(err)
-                                         {
+                                         function(err) {
                                              if (err) {
                                                  callback("");
                                              } else {
@@ -96,15 +89,13 @@ var ota = function()
     //Upload ota files
     //TODO(mxfli) implement xhr upload in client and server side
     //TODO(mxfli) Refactor all method to simple and short functions: write json file read json file.
-    exports.upload = function(req, res, next)
-    {
+    exports.upload = function(req, res, next) {
         console.log("upload called.");
         var form = new formidable.IncomingForm(),
                 oid,otaPath,datetime;
         form.uploadDir = __dirname + "/tmp";
 
-        form.parse(req, function(err, fields, files)
-        {
+        form.parse(req, function(err, fields, files) {
             if (err) {
                 next(err);
             } else {
@@ -118,31 +109,31 @@ var ota = function()
 
                 //make dir for the upload files
                 path.exists(otaPath,
-                            function(exists)
-                            {
+                            function(exists) {
                                 if (!exists) {
                                     fs.mkdirSync(otaPath, 777);
                                 }
 
                                 var mobileType;
 
-                                Object.keys(files).forEach(function(key)
-                                                           {
-                                                               mobileType = key.split("_")[0];
-                                                               if (!mobiles.hasOwnProperty(mobileType)) {
-                                                                   mobiles[mobileType] = {mobileType:mobileType};
-                                                               }
-                                                               //mobiles[mobileType][key.split("_")[1]] = otaPath + "/" + files[key]["filename"];
-                                                               console.log("upload filename:", files[key]["filename"]);
-                                                               mobiles[mobileType][key.split("_")[1]] = files[key]["filename"];
-                                                               fs.renameSync(files[key]["path"], otaPath + "/" + files[key]["filename"]);
-                                                               //console.log("Old file", files[key]["path"], " save to file", otaPath + "/" + files[key]["filename"]);
-                                                           });
+                                Object.keys(files).forEach(function(key) {
+                                    mobileType = key.split("_")[0];
+                                    if (!mobiles.hasOwnProperty(mobileType)) {
+                                        mobiles[mobileType] = {mobileType:mobileType};
+                                    }
+                                    //mobiles[mobileType][key.split("_")[1]] = otaPath + "/" + files[key]["filename"];
+                                    console.log("upload filename:", files[key]["filename"]);
+                                    mobiles[mobileType][key.split("_")[1]] = files[key]["filename"];
+                                    fs.renameSync(files[key]["path"], otaPath + "/" + files[key]["filename"]);
+                                    //console.log("Old file", files[key]["path"], " save to file", otaPath + "/" + files[key]["filename"]);
+                                });
 
                                 //console.log("uploads struct :\n", sys.inspect(mobiles));
                                 var result = [];
 
-                                Object.keys(mobiles).forEach(function(key) { result.push(mobiles[key]); });
+                                Object.keys(mobiles).forEach(function(key) {
+                                    result.push(mobiles[key]);
+                                });
 
                                 uploads.unshift({oid:oid,title:fields["title"],datatime:Date.now(),path:otaPath.replace(__dirname, ""),mobiles:result});
 
@@ -151,8 +142,7 @@ var ota = function()
                                 //res.end(sys.inspect(uploads[0]));
                                 //console.log(sys.inspect({lastId:lastId,uploads:uploads}));
 
-                                fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), 'utf8', function(err)
-                                {
+                                fs.writeFile(__dirname + "/data.json", JSON.stringify({lastId:lastId,uploads:uploads}), 'utf8', function(err) {
                                     if (err)console.log("save data.json err", err);
                                 });
 
@@ -165,15 +155,13 @@ var ota = function()
 
 
     //return uploaded to the caller
-    exports.getJSONUploads = function()
-    {
+    exports.getJSONUploads = function() {
         return JSON.stringify(uploads);
     };
 
 
     //wap 默认页面：列出最后上传的10项内容
-    exports.wap = function(req, res, next)
-    {
+    exports.wap = function(req, res, next) {
         //console.log("wap called.");
 
         var ctx = {title:"File-list", version:config.version};
@@ -184,9 +172,10 @@ var ota = function()
             result.push(uploads[i]);
         }
 
-        ctx.body = templateEngine.ctx("/ota_list.html", {uploads:result}, function(err) {throw err});
-        templateEngine.render("/layout.html", ctx, function(err, html)
-        {
+        ctx.body = templateEngine.ctx("/ota_list.html", {uploads:result}, function(err) {
+            throw err
+        });
+        templateEngine.render("/layout.html", ctx, function(err, html) {
             if (err) next(err);
             res.writeHead(200, {"content-type": WML_MIME_TYPE});
             res.end(html);
@@ -195,8 +184,7 @@ var ota = function()
     };
 
     //the data of wap default page
-    exports.wapList = function(res, oid, page)
-    {
+    exports.wapList = function(res, oid, page) {
         var upload,ctx = {title:"OTA-Err"},pageSize = 10,pageCount = 1;
         ctx.date = otaUtil.patternTime("MM月DD日 HH:mm", new Date());
 
@@ -211,16 +199,14 @@ var ota = function()
                 if (pageCount > 1) {
                     subCtx.page = {page:true,
                         pageNum:page,
-                        pages:function()
-                        {
+                        pages:function() {
                             var result = [];
                             for (var j = 1; j <= pageCount; j++) {
                                 result.push({link:" <a href='/wap/" + oid + "/" + j + "'>" + j + "</a> "});
                             }
                             return result;
                         }};
-                    subCtx.mobiles = function()
-                    {
+                    subCtx.mobiles = function() {
                         console.log("pagging...");
                         var result = [];
                         for (var i = (page - 1) * pageSize; i < upload.mobiles.length && i < page * pageSize; i++) {
@@ -229,13 +215,14 @@ var ota = function()
                         return result;
                     }
                 }
-                ctx.body = templateEngine.ctx("/mobiles_list.html", subCtx, function(err) {throw err});
+                ctx.body = templateEngine.ctx("/mobiles_list.html", subCtx, function(err) {
+                    throw err
+                });
                 break;
             }
         }
 
-        templateEngine.render("/layout.html", ctx, function(err, html)
-        {
+        templateEngine.render("/layout.html", ctx, function(err, html) {
             if (err) next(err);
             res.writeHead(200, {"content-type": WML_MIME_TYPE});
             res.end(html);
@@ -245,11 +232,9 @@ var ota = function()
 
 
     //JAD & JAR files download
-    exports.download = function(res, oid, mobileType, fileType, cb)
-    {
+    exports.download = function(res, oid, mobileType, fileType, cb) {
         //render 404 download page when data.json is right and file not exists.
-        function notFound(upload, mobile)
-        {
+        function notFound(upload, mobile) {
             templateEngine.render("/404.html",
                                   {otaTitle:upload.title
                                       ,mobileType:mobile.mobileType
@@ -257,8 +242,7 @@ var ota = function()
                                       ,referrer:res.referrer
                                       ,version:config.version
                                       ,date:otaUtil.patternTime("MM月DD日 HH:mm", new Date())},
-                                  function(err, html)
-                                  {
+                                  function(err, html) {
                                       res.writeHead(404, {"content-type": WML_MIME_TYPE});
                                       res.end(html);
                                   });
@@ -266,19 +250,16 @@ var ota = function()
 
 
         //Download jad file or jar file.
-        function downloadFile(uploadOTA, mobile)
-        {
+        function downloadFile(uploadOTA, mobile) {
             var JAD_MIME_TYPE = "text/vnd.sun.j2me.app-descriptor;charset=UTF-8";
             var filename = __dirname + uploadOTA["path"] + "/" + mobile[fileType];
             //console.log("download", fileType, " file", filename.replace(__dirname, ""));
 
-            path.exists(filename, function(exists)
-            {
+            path.exists(filename, function(exists) {
                 if (exists) {
                     if (fileType === "JAD") {
                         fs.readFile(filename,
-                                    function(err, jadContent)
-                                    {
+                                    function(err, jadContent) {
                                         if (err)cb(err);
                                         res.writeHead(200, {"content-type": JAD_MIME_TYPE});
                                         res.end(jadContent);
@@ -293,10 +274,13 @@ var ota = function()
         }
 
 
-        uploads.findObj(function(upload) {return upload.oid === oid },
-                        function(uploadedOTA)
-                        {
-                            uploadedOTA.mobiles.findObj(function(mobile) {return mobile.mobileType === mobileType},
+        uploads.findObj(function(upload) {
+            return upload.oid === oid
+        },
+                        function(uploadedOTA) {
+                            uploadedOTA.mobiles.findObj(function(mobile) {
+                                return mobile.mobileType === mobileType
+                            },
                                                         downloadFile.bind(null, uploadedOTA),
                                                         dbError.bind(null, res));
                         },
@@ -305,8 +289,7 @@ var ota = function()
 
 
     //session check filter
-    exports.sessionCheck = function(req, res, next)
-    {
+    exports.sessionCheck = function(req, res, next) {
         console.log("start session fileter for URL:", req.url);
         if (req.session.user) {
             next();
