@@ -10,13 +10,13 @@
  *      2. URL mapping: ota admin and wap download
  *
  * OTA的安装
- *      1. 需要NodeJS v 0.2.3
+ *      1. 需要NodeJS v 0.2.3 以上版本
  *      2. 安装 NPM NodeJS 包管理器
  *      3. 用NPM安装依赖的包：express(web服务器实现), formidable(Node处理文件上传的包) ,nun模板处理
  *      4. 上传app目录到服务器指定目录
  *
  * OTA服务启动：
- *      1. 终端下执行命令： node (path to ota app)/index.js | tee -a ota.log &\
+ *      1. 终端下执行命令： node (path to ota app)/index.js | tee -a ota.log &
  *      注：启动必须按照上述方式执行，启动后可以关闭当前终端，不影响服务器。
  * 只执行node index.js关闭终端时会阻塞程序运行
  */
@@ -34,7 +34,7 @@ var otaApp = express.createServer(
         express.staticProvider(__dirname + "/www")
         );
 otaApp.use(express.cookieDecoder());
-otaApp.use(express.session());
+otaApp.use(express.session({ secret: 'ota_23@han_joy' }));
 
 //print app info on the console
 (function () {

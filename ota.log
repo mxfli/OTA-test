@@ -1,1 +1,4 @@
 #OTA log file
+v0.1.6 beta
+    fix session error when start the ota server.
+    upgrade node to 0.4.0, express to 1.0.7

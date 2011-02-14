@@ -3,7 +3,7 @@ Upload jad and jar files from the pc browser(FF/chrome/safari/Opera "DO NOT USE 
 Download jad file from mobile browser. Test auto install the app described in the jad file.
 
 ##depends:
-  * node >= 0.2.3
+  * node >= 0.4.0
   * express v1.0.0
   * formidable v0.9.9
   * nun v0.1.13
