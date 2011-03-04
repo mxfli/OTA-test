@@ -4,7 +4,7 @@ Download jad file from mobile browser. Test auto install the app described in th
 
 ##depends:
   * node >= 0.4.0
-  * express v1.0.0
+  * express v2.0.0+
   * formidable v0.9.9
   * nun v0.1.13
 

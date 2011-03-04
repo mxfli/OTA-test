@@ -65,25 +65,25 @@ var ota = function() {
     exports.del = function(id, callback) {
         console.log("del called.");
         uploads.findObj(
-                       function(upload) {
-                           return upload.oid === parseInt(id, 10)
-                       },
-                       function(upload, index) {
-                           otaUtil.rmdir(__dirname + upload["path"],
-                                         function(err) {
-                                             if (err) {
-                                                 callback("");
-                                             } else {
-                                                 console.log("del:", upload["title"], "dir:", upload["path"]);
-                                                 uploads.splice(index, 1);
-                                                 fs.writeFile(__dirname + "/data.json",
-                                                              JSON.stringify({lastId:lastId,uploads:uploads}),
-                                                              "utf8");
-                                                 callback("OK");
-                                             }
-                                         });
-                       },
-                       callback.bind(null, ""));
+                function(upload) {
+                    return upload.oid === parseInt(id, 10)
+                },
+                function(upload, index) {
+                    otaUtil.rmdir(__dirname + upload["path"],
+                                  function(err) {
+                                      if (err) {
+                                          callback("");
+                                      } else {
+                                          console.log("del:", upload["title"], "dir:", upload["path"]);
+                                          uploads.splice(index, 1);
+                                          fs.writeFile(__dirname + "/data.json",
+                                                       JSON.stringify({lastId:lastId,uploads:uploads}),
+                                                       "utf8");
+                                          callback("OK");
+                                      }
+                                  });
+                },
+                callback.bind(null, ""));
     };
 
     //Upload ota files
