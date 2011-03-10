@@ -146,6 +146,8 @@ otaApp.get("/wap", ota.wap);
 //启动服OTA服务
 otaApp.listen(config.port);
 
+console.log("\n", config.appName, "listen on port:", config.port, "\n");
+
 process.on('uncaughtException', function (err) {
-  console.log("time:",new Date(),'Caught exception: ' + err);
+    console.log("time:", new Date(), 'Caught exception: ' + err);
 });

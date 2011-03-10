@@ -54,6 +54,7 @@ function initOta() {
                                           }).join(""));
               });
 
+    //TODO(mxfli) use Event "onhashchange" : location hash change event.
     //load uploaded oat items form the server by ajax request.
     function loadList() {
         if (window.location.href.indexOf("#list") !== -1)
@@ -62,6 +63,7 @@ function initOta() {
                           $("#list").show();
                           $("#up").hide();
                           $("li.list").remove();
+                          //TODO(mxfli) use jQuery table template
                           data.forEach(
                                       function(mobile, index) {
                                           $("<li></li>")
