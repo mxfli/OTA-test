@@ -8,7 +8,7 @@
 
 var config = module.exports = {
     appName             : "OTAServer",
-    version             : "v0.1.8 beta",
+    version             : "v0.1.9 beta",
     debug               : false,
     user                : {name:"admin",password:"admin"},
     //run wap server behind the nginx proxy server

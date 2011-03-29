@@ -161,6 +161,7 @@ var ota = function() {
 
 
     //wap 默认页面：列出最后上传的10项内容
+    //todo(mxfli) fix nun error under nodeJS v 0.4.3
     exports.wap = function(req, res, next) {
         //console.log("wap called.");
 
@@ -168,9 +169,12 @@ var ota = function() {
         ctx.date = otaUtil.patternTime("MM月DD日 HH:mm", new Date());
 
         var result = [];
-        for (var i = 0; i < uploads.length && i < 10; i++) {
-            result.push(uploads[i]);
-        }
+        uploads.some(function(upload) {
+            result.push(upload);
+            return result.length > 10;
+        });
+
+        //console.log("uploads:", result);
 
         ctx.body = templateEngine.ctx("/ota_list.html", {uploads:result}, function(err) {
             throw err
