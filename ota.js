@@ -161,7 +161,6 @@ var ota = function() {
 
 
     //wap 默认页面：列出最后上传的10项内容
-    //todo(mxfli) fix nun error under nodeJS v 0.4.3
     exports.wap = function(req, res, next) {
         //console.log("wap called.");
 

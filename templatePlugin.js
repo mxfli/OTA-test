@@ -19,8 +19,7 @@ var templatePlugin = module.exports = function () {
             engine = require(config.template_engine),
             sys = require("sys");
 
-    //TODO(mxfli) Can't set cache=true, need fix nun template engine.
-    var globalOption = {cache : false, compress : true};
+    var globalOption = {cache : true, compress : true};
 
     console.log("Init template engine:", config.template_engine);
     console.log("    Template engine", config.template_engine, "options:", JSON.stringify(globalOption));
