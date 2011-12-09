@@ -23,7 +23,7 @@
 
 var express = require("express"),
         config = require("./config.js"),
-        ota = require("./ota.js"),
+        ota = require("module/ota.js"),
         path = require("path"),
         url = require("url");
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-baseDir=$(dirname $0)
+baseDir=$(dirname $0)/..
 appRunning=$(pstree | grep ota | wc -l)
 
 if [ "$appRunning" -gt 0 ]; then

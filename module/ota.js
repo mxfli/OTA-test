@@ -12,10 +12,10 @@
 var fs = require("fs"),
         sys = require("sys"),
         path = require("path"),
-        config = require("./config"),
+        config = require("../config"),
         formidable = require("formidable"),
-        otaUtil = require("./util"),
-        templateEngine = require("./templatePlugin.js"),
+        otaUtil = require("../util.js"),
+        templateEngine = require("../templatePlugin.js"),
         WML_MIME_TYPE = "text/vnd.wap.wml;charset=UTF-8";
 
 var ota = function() {
